@@ -1,113 +1,31 @@
 /* =========================================================
-   NFMS-FIP LEFT SIDEBAR
-   Clean, left-aligned navigation
+   TOP NAVIGATION DROPDOWN MENUS
+   Hidden until clicked
    ========================================================= */
 
-.sidebar {
+.nav-dropdown {
+  position: relative;
+}
+
+.dropdown-panel {
+  display: none !important;
+  position: absolute;
+  top: 100%;
+  left: 0;
+
+  min-width: 330px;
+  max-width: 470px;
+
   background: #fff;
-  border-right: 1px solid var(--line);
-  padding: 0;
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 28px rgba(0,0,0,.16);
+  border-radius: 0 0 7px 7px;
+
+  padding: 8px;
+  z-index: 1000;
 }
 
-.sidebar-heading {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 15px 18px;
-  background: var(--green-800);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: left;
-}
-
-.sidebar-heading i {
-  font-size: 15px;
-}
-
-#sidebarMenu {
-  padding: 8px 0 20px;
-}
-
-/* Main sidebar sections */
-
-.sidebar-section {
-  margin: 0;
-  padding: 0;
-  border-bottom: 1px solid #e8ece9;
-}
-
-.sidebar-section-title {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  width: 100%;
-  padding: 11px 18px;
-  color: var(--green-900);
-  font-size: 14px;
-  font-weight: 600;
-  text-align: left;
-}
-
-.sidebar-section-title i {
-  width: 18px;
-  font-size: 13px;
-  text-align: center;
-}
-
-/* Groups */
-
-.sidebar-group {
-  margin: 0;
-  padding: 0 0 5px;
-}
-
-.sidebar-group-title {
-  padding: 6px 18px 5px 45px;
-  color: #555;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
-  text-align: left;
-}
-
-/* Individual links */
-
-.sidebar-link {
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 5px 18px 5px 58px;
-
-  border: 0;
-  background: transparent;
-
-  color: #444;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.45;
-
-  text-align: left;
-  cursor: pointer;
-}
-
-.sidebar-link:hover {
-  background: transparent;
-  color: var(--green-700);
-  text-decoration: underline;
-}
-
-.sidebar-link:focus {
-  outline: none;
-  color: var(--green-700);
-}
-
-/* Keep all sidebar text using the same font */
-
-.sidebar,
-.sidebar button,
-.sidebar div,
-.sidebar span {
-  font-family: inherit;
+/* Show ONLY when the top menu is clicked */
+.nav-dropdown.open > .dropdown-panel {
+  display: block !important;
 }
