@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="National Forest Monitoring System - Kenya Forest Service">
+  <title>NFMS-FIP | National Forest Monitoring System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="emblem-placeholder" aria-label="Republic of Kenya emblem">REPUBLIC<br><strong>OF KENYA</strong></div>
+      <div class="brand-copy">
+        <h1>National Forest Monitoring System (NFMS-FIP)</h1>
+        <p>Data for Sustainable Forest Management</p>
+      </div>
+    </div>
+    <div class="header-tools">
+      <button class="tool-button" id="searchButton"><i class="fa-solid fa-magnifying-glass"></i><span>Search</span></button>
+      <button class="tool-button"><i class="fa-solid fa-user"></i><span>Login</span></button>
+      <div class="kfs-mark"><i class="fa-solid fa-tree"></i><span>KENYA<br><small>Forest Service</small></span></div>
+    </div>
+  </header>
+
+  <nav class="main-nav" aria-label="Primary navigation">
+    <a href="#home" class="nav-item active" data-page="home"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <div class="nav-dropdown" data-menu="about">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-circle-info"></i><span>About NFMS</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="aboutMenu"></div>
+    </div>
+    <div class="nav-dropdown" data-menu="monitoring">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-tree"></i><span>Forest Monitoring</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="monitoringMenu"></div>
+    </div>
+    <div class="nav-dropdown" data-menu="mrv">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-cloud"></i><span>MRV &amp; Climate</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="mrvMenu"></div>
+    </div>
+    <div class="nav-dropdown" data-menu="maps">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-map"></i><span>Forest Data &amp; Maps</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="mapsMenu"></div>
+    </div>
+    <div class="nav-dropdown" data-menu="reporting">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-file-lines"></i><span>Reporting &amp; Submissions</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="reportingMenu"></div>
+    </div>
+    <div class="nav-dropdown" data-menu="knowledge">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-database"></i><span>Data &amp; Knowledge</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="knowledgeMenu"></div>
+    </div>
+    <div class="nav-dropdown" data-menu="quality">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-shield-halved"></i><span>Quality &amp; Transparency</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="qualityMenu"></div>
+    </div>
+    <div class="nav-dropdown" data-menu="safeguards">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-users"></i><span>Safeguards &amp; Governance</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="safeguardsMenu"></div>
+    </div>
+    <div class="nav-dropdown" data-menu="news">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-calendar-days"></i><span>News &amp; Events</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="newsMenu"></div>
+    </div>
+    <div class="nav-dropdown" data-menu="support">
+      <button class="nav-item nav-toggle"><i class="fa-solid fa-envelope"></i><span>Contact &amp; Support</span><i class="fa-solid fa-chevron-down chevron"></i></button>
+      <div class="dropdown-panel" id="supportMenu"></div>
+    </div>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-overlay">
+      <div class="hero-content">
+        <div class="eyebrow">KENYA NATIONAL FOREST MONITORING SYSTEM</div>
+        <h2>Healthy Forests<br>for a <span>Sustainable Kenya</span></h2>
+        <p>Monitoring &nbsp;•&nbsp; Managing &nbsp;•&nbsp; Conserving</p>
+        <a class="hero-button" href="#monitoring">Explore Forest Monitoring <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker">
+    <div class="ticker-label"><i class="fa-solid fa-bullhorn"></i></div>
+    <div class="ticker-track">
+      <span>Kenya's forest cover is our shared responsibility.</span>
+      <span>Let's protect, restore and grow our forests for future generations.</span>
+      <span>NFMS — Reliable data for informed decision-making.</span>
+    </div>
+    <button id="tickerPause" title="Pause"><i class="fa-solid fa-pause"></i></button>
+  </div>
+
+  <div class="mobile-menu-bar">
+    <button id="mobileMenuButton"><i class="fa-solid fa-bars"></i> NFMS-FIP Menu</button>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-heading"><i class="fa-solid fa-compass"></i><span>NFMS-FIP Navigation</span></div>
+      <div id="sidebarMenu"></div>
+    </aside>
+
+    <main class="content" id="content">
+      <!-- Dynamic content -->
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div>
+      <strong>National Forest Monitoring System (NFMS-FIP)</strong>
+      <p>Kenya Forest Service • Reliable forest information for sustainable management.</p>
+    </div>
+    <div class="footer-links">
+      <a href="#data-protection">Data Protection</a>
+      <a href="#contact-us">Contact</a>
+      <a href="#feedback">Feedback</a>
+    </div>
+    <div class="copyright">© <span id="year"></span> Kenya Forest Service</div>
+  </footer>
+
+  <div class="search-modal" id="searchModal" aria-hidden="true">
+    <div class="search-dialog">
+      <button class="close-modal" id="closeSearch"><i class="fa-solid fa-xmark"></i></button>
+      <h2>Search NFMS-FIP</h2>
+      <input id="searchInput" type="search" placeholder="Search forest monitoring, maps, MRV, data..." autofocus>
+      <div id="searchResults"></div>
+    </div>
+  </div>
+
+  <script src="js/content.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
