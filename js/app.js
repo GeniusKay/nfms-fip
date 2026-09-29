@@ -1,347 +1,332 @@
 /* =========================================================
    NFMS-FIP APPLICATION CONTROLLER
+   Designed for the current index.html structure
    ========================================================= */
 
-const content = document.getElementById("content");
-const sidebar = document.getElementById("sidebar");
-const sidebarMenu = document.getElementById("sidebarMenu");
+document.addEventListener("DOMContentLoaded", function () {
 
+  /* ---------------------------------------------------------
+     BASIC ELEMENTS
+     --------------------------------------------------------- */
 
-/* =========================================================
-   UTILITY
-   ========================================================= */
+  const content = document.getElementById("content");
+  const sidebarMenu = document.getElementById("sidebarMenu");
+  const searchButton = document.getElementById("searchButton");
+  const searchModal = document.getElementById("searchModal");
+  const closeSearchButton = document.getElementById("closeSearch");
+  const searchInput = document.getElementById("searchInput");
+  const searchResults = document.getElementById("searchResults");
+  const mobileMenuButton = document.getElementById("mobileMenuButton");
+  const sidebar = document.getElementById("sidebar");
+  const tickerPause = document.getElementById("tickerPause");
+  const year = document.getElementById("year");
 
-function slug(text) {
-  return String(text)
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-
-/* =========================================================
-   BUILD TOP NAVIGATION DROPDOWNS
-   ========================================================= */
-
-function buildDropdown(menu) {
-
-  if (!menu || !Array.isArray(menu.groups)) {
-    return "";
+  if (year) {
+    year.textContent = new Date().getFullYear();
   }
 
-  return menu.groups.map((group, groupIndex) => {
 
-    const groupId =
-      `group-${slug(menu.title)}-${groupIndex}`;
-
-    const items = (group.items || []).map(([label, id]) => {
-
-      const icon =
-        ICONS[label] || "fa-angle-right";
-
-      return `
-        <a
-          href="#${id}"
-          class="menu-link"
-          data-page="${id}"
-        >
-          <span>
-            <i class="fa-solid ${icon}"></i>
-            ${label}
-          </span>
-
-          <i class="fa-solid fa-chevron-right"></i>
-        </a>
-      `;
-
-    }).join("");
-
-    return `
-      <div class="menu-group">
-
-        <button
-          type="button"
-          class="menu-group-title"
-          aria-expanded="false"
-          aria-controls="${groupId}-submenu"
-        >
-          <span>
-            <i class="fa-solid fa-folder-open"></i>
-            ${group.title}
-          </span>
-
-          <i class="fa-solid fa-chevron-down"></i>
-        </button>
-
-        <div
-          class="submenu"
-          id="${groupId}-submenu"
-        >
-          ${items}
-        </div>
-
-      </div>
-    `;
-
-  }).join("");
-}
-
-
-function buildTopMenus() {
+  /* ---------------------------------------------------------
+     CHECK CONTENT DATA
+     --------------------------------------------------------- */
 
   if (typeof MENU === "undefined") {
-    console.error(
-      "MENU is not available. Check js/content.js."
-    );
+    console.error("NFMS-FIP ERROR: MENU is not available.");
+    if (content) {
+      content.innerHTML = `
+        <div class="page-body">
+          <h2>NFMS-FIP Loading Error</h2>
+          <p>The menu configuration could not be loaded.</p>
+          <p>Please check that <strong>js/content.js</strong> is available.</p>
+        </div>
+      `;
+    }
     return;
   }
 
-  Object.entries(MENU).forEach(([key, menu]) => {
 
-    const element =
-      document.getElementById(`${key}Menu`);
+  /* ---------------------------------------------------------
+     BUILD TOP NAVIGATION DROPDOWNS
+     --------------------------------------------------------- */
 
-    if (element) {
-      element.innerHTML =
-        buildDropdown(menu);
+  function buildTopMenus() {
+
+    Object.keys(MENU).forEach(function (key) {
+
+      const menu = MENU[key];
+
+      const panel = document.getElementById(key + "Menu");
+
+      if (!panel) {
+        console.warn("NFMS-FIP: Missing dropdown panel:", key + "Menu");
+        return;
+      }
+
+      panel.innerHTML = buildDropdownContent(menu);
+
+    });
+
+  }
+
+
+  /* ---------------------------------------------------------
+     BUILD DROPDOWN CONTENT
+     --------------------------------------------------------- */
+
+  function buildDropdownContent(menu) {
+
+    let html = "";
+
+    if (!menu || !menu.groups) {
+      return html;
     }
 
-  });
-}
-
-
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
-
-function buildSidebar() {
-
-  if (!sidebarMenu || typeof MENU === "undefined") {
-    return;
-  }
-
-  let html = "";
-
-  Object.entries(MENU).forEach(([key, menu]) => {
-
-    html += `
-      <div class="side-section">
-
-        <div class="side-section-title">
-          <i class="fa-solid ${menu.icon || "fa-folder"}"></i>
-          <span>${menu.title}</span>
-        </div>
-    `;
-
-    (menu.groups || []).forEach(group => {
+    menu.groups.forEach(function (group) {
 
       html += `
-        <div class="side-group">
+        <div class="menu-group">
 
-          <div class="side-group-title">
-            ${group.title}
+          <button
+            type="button"
+            class="menu-group-title"
+            data-group="${escapeHtml(group.title)}"
+          >
+            <span>${escapeHtml(group.title)}</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+
+          <div class="submenu">
+      `;
+
+      if (group.items && Array.isArray(group.items)) {
+
+        group.items.forEach(function (item) {
+
+          const label = item[0];
+          const pageId = item[1];
+
+          html += `
+            <button
+              type="button"
+              class="menu-link"
+              data-page="${escapeHtml(pageId)}"
+            >
+              <span>${escapeHtml(label)}</span>
+              <i class="fa-solid fa-angle-right"></i>
+            </button>
+          `;
+
+        });
+
+      }
+
+      html += `
+          </div>
+        </div>
+      `;
+
+    });
+
+    return html;
+  }
+
+
+  /* ---------------------------------------------------------
+     BUILD LEFT SIDEBAR
+     --------------------------------------------------------- */
+
+  function buildSidebar() {
+
+    if (!sidebarMenu) return;
+
+    let html = "";
+
+    Object.keys(MENU).forEach(function (key) {
+
+      const menu = MENU[key];
+
+      html += `
+        <div class="sidebar-section">
+
+          <div class="sidebar-section-title">
+            <i class="fa-solid ${menu.icon || "fa-folder"}"></i>
+            <span>${escapeHtml(menu.title)}</span>
           </div>
       `;
 
-      (group.items || []).forEach(([label, id]) => {
+      if (menu.groups) {
 
-        const icon =
-          ICONS[label] || "fa-angle-right";
+        menu.groups.forEach(function (group) {
 
-        html += `
-          <a
-            href="#${id}"
-            class="side-link"
-            data-page="${id}"
-          >
-            <i class="fa-solid ${icon}"></i>
-            <span>${label}</span>
-          </a>
-        `;
+          html += `
+            <div class="sidebar-group">
 
-      });
+              <div class="sidebar-group-title">
+                ${escapeHtml(group.title)}
+              </div>
+          `;
+
+          if (group.items) {
+
+            group.items.forEach(function (item) {
+
+              const label = item[0];
+              const pageId = item[1];
+
+              html += `
+                <button
+                  type="button"
+                  class="sidebar-link"
+                  data-page="${escapeHtml(pageId)}"
+                >
+                  ${escapeHtml(label)}
+                </button>
+              `;
+
+            });
+
+          }
+
+          html += `
+            </div>
+          `;
+
+        });
+
+      }
 
       html += `
         </div>
       `;
+
     });
 
-    html += `
-      </div>
-    `;
-  });
-
-  sidebarMenu.innerHTML = html;
-}
-
-
-/* =========================================================
-   HOME PAGE
-   ========================================================= */
-
-function homePage() {
-
-  return `
-  <div class="breadcrumb">
-
-    <i class="fa-solid fa-house"></i>
-
-    <span>Home</span>
-
-  </div>
-
-
-  <div class="page-body">
-
-    <h2>
-      National Forest Monitoring System
-    </h2>
-
-
-    <p class="lead">
-      The NFMS-FIP provides a coordinated national platform
-      for forest information, monitoring, mapping, inventory,
-      carbon accounting, reporting, data access and decision support.
-    </p>
-
-
-    <div class="metrics">
-
-      <div class="metric">
-        <strong>NFMS</strong>
-        <span>
-          National forest information framework
-        </span>
-      </div>
-
-
-      <div class="metric">
-        <strong>SLMS</strong>
-        <span>
-          Satellite land monitoring
-        </span>
-      </div>
-
-
-      <div class="metric">
-        <strong>NFI</strong>
-        <span>
-          National Forest Inventory
-        </span>
-      </div>
-
-
-      <div class="metric">
-        <strong>MRV</strong>
-        <span>
-          Measurement, Reporting & Verification
-        </span>
-      </div>
-
-    </div>
-
-
-    <h3>
-      Explore NFMS-FIP
-    </h3>
-
-
-    <div class="cards">
-
-      <div class="info-card">
-
-        <i class="fa-solid fa-satellite"></i>
-
-        <h4>
-          Forest Monitoring
-        </h4>
-
-        <p>
-          Satellite, field and UAV-based monitoring
-          of forest cover, change, alerts and fire.
-        </p>
-
-      </div>
-
-
-      <div class="info-card">
-
-        <i class="fa-solid fa-map"></i>
-
-        <h4>
-          Forest Data & Maps
-        </h4>
-
-        <p>
-          Interactive maps, dashboards, data exploration
-          and county forest information.
-        </p>
-
-      </div>
-
-
-      <div class="info-card">
-
-        <i class="fa-solid fa-cloud"></i>
-
-        <h4>
-          MRV & Climate
-        </h4>
-
-        <p>
-          Carbon monitoring, GHG inventory, FREL/FRL,
-          REDD+ and climate reporting.
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <div class="callout">
-
-      <strong>
-        Better data. Better decisions. Healthier forests.
-      </strong>
-
-      <br>
-
-      NFMS-FIP connects evidence from Earth observation,
-      inventories, field surveys, GIS, UAVs and other
-      information sources.
-
-    </div>
-
-  </div>
-  `;
-}
-
-
-/* =========================================================
-   FIND MENU GROUP
-   ========================================================= */
-
-function findMenuGroup(id) {
-
-  if (typeof MENU === "undefined") {
-    return null;
+    sidebarMenu.innerHTML = html;
   }
 
-  for (const [key, menu] of Object.entries(MENU)) {
 
-    for (const group of menu.groups || []) {
+  /* ---------------------------------------------------------
+     HOME PAGE
+     --------------------------------------------------------- */
 
-      for (const item of group.items || []) {
+  function homePage() {
 
-        if (item[1] === id) {
+    return `
+      <div class="breadcrumb">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </div>
 
-          return {
-            key: key,
-            title: menu.title,
-            groupTitle: group.title
-          };
+      <div class="page-body">
+
+        <h2>National Forest Monitoring System</h2>
+
+        <p class="lead">
+          The NFMS-FIP provides a coordinated national platform for forest
+          information, monitoring, mapping, inventory, carbon accounting,
+          reporting, data access and decision support.
+        </p>
+
+        <div class="metrics">
+
+          <div class="metric">
+            <strong>NFMS</strong>
+            <span>National forest information framework</span>
+          </div>
+
+          <div class="metric">
+            <strong>SLMS</strong>
+            <span>Satellite land monitoring</span>
+          </div>
+
+          <div class="metric">
+            <strong>NFI</strong>
+            <span>National Forest Inventory</span>
+          </div>
+
+          <div class="metric">
+            <strong>MRV</strong>
+            <span>Measurement, Reporting &amp; Verification</span>
+          </div>
+
+        </div>
+
+        <h3>Explore NFMS-FIP</h3>
+
+        <div class="cards">
+
+          <div class="info-card">
+            <i class="fa-solid fa-satellite"></i>
+            <h4>Forest Monitoring</h4>
+            <p>
+              Satellite, field and UAV-based monitoring of forest cover,
+              change, alerts and fire.
+            </p>
+          </div>
+
+          <div class="info-card">
+            <i class="fa-solid fa-map"></i>
+            <h4>Forest Data &amp; Maps</h4>
+            <p>
+              Interactive maps, dashboards, data exploration and county
+              forest information.
+            </p>
+          </div>
+
+          <div class="info-card">
+            <i class="fa-solid fa-cloud"></i>
+            <h4>MRV &amp; Climate</h4>
+            <p>
+              Carbon monitoring, GHG inventory, FREL/FRL, REDD+ and
+              climate reporting.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="callout">
+          <strong>
+            Better data. Better decisions. Healthier forests.
+          </strong>
+
+          <br>
+
+          NFMS-FIP connects evidence from Earth observation, inventories,
+          field surveys, GIS, UAVs and other information sources.
+        </div>
+
+      </div>
+    `;
+  }
+
+
+  /* ---------------------------------------------------------
+     FIND MENU GROUP
+     --------------------------------------------------------- */
+
+  function findMenuGroup(pageId) {
+
+    for (const key of Object.keys(MENU)) {
+
+      const menu = MENU[key];
+
+      if (!menu.groups) continue;
+
+      for (const group of menu.groups) {
+
+        if (!group.items) continue;
+
+        for (const item of group.items) {
+
+          if (item[1] === pageId) {
+
+            return {
+              menuKey: key,
+              group: group,
+              label: item[0]
+            };
+
+          }
 
         }
 
@@ -349,45 +334,84 @@ function findMenuGroup(id) {
 
     }
 
-  }
-
-  return null;
-}
-
-
-/* =========================================================
-   RENDER PAGE
-   ========================================================= */
-
-function renderPage(id) {
-
-  if (!content) {
-    return;
+    return null;
   }
 
 
-  /* HOME */
+  /* ---------------------------------------------------------
+     RENDER PAGE
+     --------------------------------------------------------- */
 
-  if (!id || id === "home") {
+  function renderPage(pageId) {
 
-    content.innerHTML =
-      homePage();
+    if (!content) return;
 
-    setActive("home");
+    if (!pageId || pageId === "home") {
 
-    return;
-  }
+      content.innerHTML = homePage();
 
+      setActive("home");
 
-  /* NORMAL PAGE */
-
-  const page =
-    PAGE_COPY[id];
+      return;
+    }
 
 
-  /* PAGE NOT FOUND */
+    const menuInfo = findMenuGroup(pageId);
 
-  if (!page) {
+    let page = null;
+
+    if (typeof PAGE_COPY !== "undefined") {
+      page = PAGE_COPY[pageId];
+    }
+
+
+    let title = pageId;
+    let body = "";
+
+
+    if (page) {
+
+      if (typeof page === "string") {
+
+        body = page;
+
+      } else {
+
+        title =
+          page.title ||
+          page.heading ||
+          title;
+
+        body =
+          page.content ||
+          page.body ||
+          page.description ||
+          "";
+
+      }
+
+    } else if (menuInfo) {
+
+      title = menuInfo.label;
+
+      body = `
+        <p class="lead">
+          This section provides information and resources related to
+          ${escapeHtml(menuInfo.label)} within the Kenya National Forest
+          Monitoring System.
+        </p>
+      `;
+
+    } else {
+
+      body = `
+        <p class="lead">
+          Information for this section is being developed.
+        </p>
+      `;
+
+    }
+
 
     content.innerHTML = `
 
@@ -395,560 +419,165 @@ function renderPage(id) {
 
         <i class="fa-solid fa-house"></i>
 
-        <a href="#home">
-          Home
-        </a>
+        <span>Home</span>
 
         <i class="fa-solid fa-angle-right"></i>
 
-        <span>
-          Page Not Found
-        </span>
+        <span>${menuInfo ? escapeHtml(MENU[menuInfo.menuKey].title) : "NFMS-FIP"}</span>
+
+        <i class="fa-solid fa-angle-right"></i>
+
+        <span>${escapeHtml(title)}</span>
 
       </div>
 
 
       <div class="page-body">
 
-        <h2>
-          Page Not Found
-        </h2>
+        <h2>${escapeHtml(title)}</h2>
 
-        <p class="lead">
-          The requested NFMS-FIP page could not be found.
-        </p>
+        <div class="page-content">
 
-        <p>
-          Please use the navigation menu to select
-          an available section.
-        </p>
-
-      </div>
-    `;
-
-    setActive("");
-
-    return;
-  }
-
-
-  const title =
-    page[0];
-
-  const body =
-    page[1];
-
-  const group =
-    findMenuGroup(id);
-
-
-  content.innerHTML = `
-
-    <div class="breadcrumb">
-
-      <i class="fa-solid fa-house"></i>
-
-      <a href="#home">
-        Home
-      </a>
-
-      <i class="fa-solid fa-angle-right"></i>
-
-      ${
-        group
-          ? `
-            <span>
-              ${group.title}
-            </span>
-
-            <i class="fa-solid fa-angle-right"></i>
-          `
-          : ""
-      }
-
-      <span>
-        ${title}
-      </span>
-
-    </div>
-
-
-    <div class="page-body">
-
-      <h2>
-        ${title}
-      </h2>
-
-      <p class="lead">
-        ${body}
-      </p>
-
-
-      <div class="content-note">
-
-        <i class="fa-solid fa-circle-info"></i>
-
-        <div>
-
-          <strong>
-            NFMS-FIP Information Resource
-          </strong>
-
-          <p>
-            This section provides a structured entry
-            point to information, datasets, maps,
-            monitoring methods and related resources
-            within the National Forest Monitoring System.
-          </p>
+          ${body}
 
         </div>
 
       </div>
 
-    </div>
-  `;
+    `;
+
+    setActive(pageId);
+
+  }
 
 
-  setActive(id);
-}
+  /* ---------------------------------------------------------
+     SET ACTIVE NAVIGATION ITEM
+     --------------------------------------------------------- */
 
+  function setActive(pageId) {
 
-/* =========================================================
-   ACTIVE NAVIGATION
-   ========================================================= */
+    document.querySelectorAll(".nav-item").forEach(function (item) {
 
-function setActive(id) {
-
-  /* Remove previous active state */
-
-  document
-    .querySelectorAll(".nav-item")
-    .forEach(item => {
       item.classList.remove("active");
+
     });
 
 
-  document
-    .querySelectorAll(".side-link")
-    .forEach(link => {
-      link.classList.remove("active");
-    });
+    if (pageId === "home") {
 
-
-  if (id === "home" || !id) {
-
-    const home =
-      document.querySelector(
-        ".home-link, #homeLink"
+      const home = document.querySelector(
+        '.nav-item[data-page="home"]'
       );
 
-    if (home) {
-      home.classList.add("active");
+      if (home) {
+        home.classList.add("active");
+      }
+
+      return;
     }
 
-    return;
-  }
+
+    const menuInfo = findMenuGroup(pageId);
+
+    if (!menuInfo) return;
 
 
-  const group =
-    findMenuGroup(id);
-
-
-  if (!group) {
-    return;
-  }
-
-
-  const dropdown =
-    document.getElementById(
-      `${group.key}Menu`
+    const dropdown = document.querySelector(
+      '.nav-dropdown[data-menu="' + menuInfo.menuKey + '"]'
     );
 
+    if (dropdown) {
 
-  if (dropdown) {
+      const button = dropdown.querySelector(".nav-item");
 
-    const button =
-      dropdown.querySelector(".nav-item");
+      if (button) {
+        button.classList.add("active");
+      }
 
-    if (button) {
-      button.classList.add("active");
     }
 
   }
 
 
-  document
-    .querySelectorAll(
-      `.side-link[data-page="${id}"]`
-    )
-    .forEach(link => {
+  /* ---------------------------------------------------------
+     CLOSE ALL TOP DROPDOWNS
+     --------------------------------------------------------- */
 
-      link.classList.add("active");
+  function closeAllDropdowns(except) {
 
-    });
-}
-
-
-/* =========================================================
-   DROPDOWN FUNCTIONS
-   ========================================================= */
-
-function closeAllDropdowns(except = null) {
-
-  document
-    .querySelectorAll(".nav-dropdown.open")
-    .forEach(dropdown => {
+    document.querySelectorAll(".nav-dropdown").forEach(function (dropdown) {
 
       if (dropdown !== except) {
+        dropdown.classList.remove("open");
+      }
+
+    });
+
+  }
+
+
+  /* ---------------------------------------------------------
+     CLOSE ALL SUBMENUS
+     --------------------------------------------------------- */
+
+  function closeAllSubmenus(except) {
+
+    document.querySelectorAll(".menu-group").forEach(function (group) {
+
+      if (group !== except) {
+        group.classList.remove("expanded");
+      }
+
+    });
+
+  }
+
+
+  /* ---------------------------------------------------------
+     TOP MENU CLICK
+     --------------------------------------------------------- */
+
+  document.querySelectorAll(".nav-dropdown").forEach(function (dropdown) {
+
+    const button = dropdown.querySelector(".nav-toggle");
+
+    if (!button) return;
+
+
+    button.addEventListener("click", function (event) {
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+      const isOpen = dropdown.classList.contains("open");
+
+      closeAllDropdowns(dropdown);
+
+      if (isOpen) {
 
         dropdown.classList.remove("open");
 
-      }
+      } else {
 
-    });
-}
-
-
-function closeAllSubmenus(except = null) {
-
-  document
-    .querySelectorAll(".menu-group.expanded")
-    .forEach(group => {
-
-      if (group !== except) {
-
-        group.classList.remove(
-          "expanded"
-        );
-
-
-        const button =
-          group.querySelector(
-            ".menu-group-title"
-          );
-
-        if (button) {
-
-          button.setAttribute(
-            "aria-expanded",
-            "false"
-          );
-
-        }
+        dropdown.classList.add("open");
 
       }
-
-    });
-}
-
-
-function toggleDropdown(dropdown) {
-
-  if (!dropdown) {
-    return;
-  }
-
-
-  const isOpen =
-    dropdown.classList.contains("open");
-
-
-  closeAllDropdowns();
-
-
-  if (!isOpen) {
-
-    dropdown.classList.add("open");
-
-  }
-}
-
-
-function toggleSubmenu(group) {
-
-  if (!group) {
-    return;
-  }
-
-
-  const isExpanded =
-    group.classList.contains(
-      "expanded"
-    );
-
-
-  closeAllSubmenus(group);
-
-
-  group.classList.toggle(
-    "expanded",
-    !isExpanded
-  );
-
-
-  const button =
-    group.querySelector(
-      ".menu-group-title"
-    );
-
-
-  if (button) {
-
-    button.setAttribute(
-      "aria-expanded",
-      String(!isExpanded)
-    );
-
-  }
-}
-
-
-/* =========================================================
-   SEARCH
-   ========================================================= */
-
-function openSearch() {
-
-  const modal =
-    document.getElementById(
-      "searchModal"
-    );
-
-  const input =
-    document.getElementById(
-      "searchInput"
-    );
-
-
-  if (!modal) {
-    return;
-  }
-
-
-  modal.classList.add("show");
-
-  modal.setAttribute(
-    "aria-hidden",
-    "false"
-  );
-
-
-  if (input) {
-
-    setTimeout(() => {
-      input.focus();
-    }, 50);
-
-  }
-}
-
-
-function closeSearch() {
-
-  const modal =
-    document.getElementById(
-      "searchModal"
-    );
-
-
-  if (!modal) {
-    return;
-  }
-
-
-  modal.classList.remove("show");
-
-  modal.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-}
-
-
-function performSearch(query) {
-
-  const results =
-    document.getElementById(
-      "searchResults"
-    );
-
-
-  if (
-    !results ||
-    typeof MENU === "undefined"
-  ) {
-    return;
-  }
-
-
-  const term =
-    String(query || "")
-      .trim()
-      .toLowerCase();
-
-
-  if (!term) {
-
-    results.innerHTML = `
-      <div class="search-empty">
-        Enter a keyword to search NFMS-FIP.
-      </div>
-    `;
-
-    return;
-  }
-
-
-  const matches = [];
-
-
-  Object.values(MENU).forEach(menu => {
-
-    (menu.groups || []).forEach(group => {
-
-      (group.items || []).forEach(
-        ([label, id]) => {
-
-          const page =
-            PAGE_COPY[id];
-
-          const title =
-            page
-              ? page[0]
-              : label;
-
-          const description =
-            page
-              ? page[1]
-              : "";
-
-
-          if (
-            label
-              .toLowerCase()
-              .includes(term) ||
-
-            title
-              .toLowerCase()
-              .includes(term) ||
-
-            description
-              .toLowerCase()
-              .includes(term)
-          ) {
-
-            matches.push({
-              label: label,
-              id: id,
-              group: menu.title
-            });
-
-          }
-
-        }
-      );
 
     });
 
   });
 
 
-  if (!matches.length) {
+  /* ---------------------------------------------------------
+     DROPDOWN GROUP CLICK
+     --------------------------------------------------------- */
 
-    results.innerHTML = `
-      <div class="search-empty">
-        No matching NFMS-FIP content was found.
-      </div>
-    `;
-
-    return;
-  }
-
-
-  results.innerHTML =
-    matches
-      .slice(0, 30)
-      .map(match => `
-
-        <a
-          href="#${match.id}"
-          class="search-result"
-          data-page="${match.id}"
-        >
-
-          <i class="fa-solid ${
-            ICONS[match.label] ||
-            "fa-file-lines"
-          }"></i>
-
-          <span>
-
-            <strong>
-              ${match.label}
-            </strong>
-
-            <small>
-              ${match.group}
-            </small>
-
-          </span>
-
-        </a>
-
-      `)
-      .join("");
-}
-
-
-/* =========================================================
-   CLICK HANDLER
-   ========================================================= */
-
-document.addEventListener(
-  "click",
-  function(event) {
-
-
-    /* -----------------------------------------
-       TOP MENU BUTTON
-       ----------------------------------------- */
-
-    const navButton =
-      event.target.closest(
-        ".nav-dropdown > .nav-item"
-      );
-
-
-    if (navButton) {
-
-      event.preventDefault();
-
-      event.stopPropagation();
-
-
-      const dropdown =
-        navButton.closest(
-          ".nav-dropdown"
-        );
-
-
-      toggleDropdown(
-        dropdown
-      );
-
-      return;
-    }
-
-
-    /* -----------------------------------------
-       SUBMENU GROUP
-       ----------------------------------------- */
+  document.addEventListener("click", function (event) {
 
     const groupButton =
-      event.target.closest(
-        ".menu-group-title"
-      );
-
+      event.target.closest(".menu-group-title");
 
     if (groupButton) {
 
@@ -956,384 +585,473 @@ document.addEventListener(
 
       event.stopPropagation();
 
-
       const group =
-        groupButton.closest(
-          ".menu-group"
-        );
+        groupButton.closest(".menu-group");
 
+      if (!group) return;
 
-      toggleSubmenu(
-        group
-      );
+      const expanded =
+        group.classList.contains("expanded");
 
-      return;
-    }
+      closeAllSubmenus(group);
 
+      if (expanded) {
 
-    /* -----------------------------------------
-       PAGE LINKS
-       ----------------------------------------- */
+        group.classList.remove("expanded");
 
-    const pageLink =
-      event.target.closest(
-        ".menu-link, .side-link, .search-result"
-      );
+      } else {
 
+        group.classList.add("expanded");
 
-    if (pageLink) {
-
-      closeAllDropdowns();
-
-      closeAllSubmenus();
-
-      closeSearch();
-
-      if (sidebar) {
-        sidebar.classList.remove(
-          "open"
-        );
       }
 
       return;
     }
 
 
-    /* -----------------------------------------
+    /* -------------------------------------------------------
+       DROPDOWN PAGE LINK
+       ------------------------------------------------------- */
+
+    const menuLink =
+      event.target.closest(".menu-link");
+
+    if (menuLink) {
+
+      event.preventDefault();
+
+      const pageId =
+        menuLink.getAttribute("data-page");
+
+      if (pageId) {
+
+        window.location.hash = pageId;
+
+        closeAllDropdowns();
+
+      }
+
+      return;
+    }
+
+
+    /* -------------------------------------------------------
+       SIDEBAR PAGE LINK
+       ------------------------------------------------------- */
+
+    const sidebarLink =
+      event.target.closest(".sidebar-link");
+
+    if (sidebarLink) {
+
+      event.preventDefault();
+
+      const pageId =
+        sidebarLink.getAttribute("data-page");
+
+      if (pageId) {
+
+        window.location.hash = pageId;
+
+      }
+
+      return;
+    }
+
+
+    /* -------------------------------------------------------
        HOME
-       ----------------------------------------- */
+       ------------------------------------------------------- */
 
     const homeLink =
-      event.target.closest(
-        ".home-link, #homeLink"
-      );
-
+      event.target.closest('.nav-item[data-page="home"]');
 
     if (homeLink) {
 
+      event.preventDefault();
+
+      window.location.hash = "home";
+
       closeAllDropdowns();
-
-      closeAllSubmenus();
-
-      closeSearch();
 
       return;
     }
 
 
-    /* -----------------------------------------
-       SEARCH BUTTON
-       ----------------------------------------- */
+    /* -------------------------------------------------------
+       CLICK OUTSIDE MENUS
+       ------------------------------------------------------- */
 
-    const searchTrigger =
-      event.target.closest(
-        "#searchButton, .search-button, [data-action='search']"
-      );
+    if (!event.target.closest(".nav-dropdown")) {
+
+      closeAllDropdowns();
+
+    }
+
+  });
 
 
-    if (searchTrigger) {
+  /* ---------------------------------------------------------
+     HERO MONITORING BUTTON
+     --------------------------------------------------------- */
 
-      event.preventDefault();
+  document.addEventListener("click", function (event) {
+
+    const heroButton =
+      event.target.closest(".hero-button");
+
+    if (!heroButton) return;
+
+    event.preventDefault();
+
+    window.location.hash = "monitoring";
+
+    window.scrollTo({
+      top: document.querySelector(".layout")
+        ? document.querySelector(".layout").offsetTop - 20
+        : 0,
+      behavior: "smooth"
+    });
+
+  });
+
+
+  /* ---------------------------------------------------------
+     SEARCH
+     --------------------------------------------------------- */
+
+  function openSearch() {
+
+    if (!searchModal) return;
+
+    searchModal.classList.add("open");
+
+    searchModal.setAttribute("aria-hidden", "false");
+
+    setTimeout(function () {
+
+      if (searchInput) {
+        searchInput.focus();
+      }
+
+    }, 100);
+
+  }
+
+
+  function closeSearch() {
+
+    if (!searchModal) return;
+
+    searchModal.classList.remove("open");
+
+    searchModal.setAttribute("aria-hidden", "true");
+
+  }
+
+
+  if (searchButton) {
+
+    searchButton.addEventListener("click", function () {
 
       openSearch();
 
-      return;
-    }
+    });
+
+  }
 
 
-    /* -----------------------------------------
-       SEARCH CLOSE
-       ----------------------------------------- */
+  if (closeSearchButton) {
 
-    const searchClose =
-      event.target.closest(
-        "#closeSearch, .search-close, [data-action='close-search']"
-      );
-
-
-    if (searchClose) {
-
-      event.preventDefault();
+    closeSearchButton.addEventListener("click", function () {
 
       closeSearch();
 
+    });
+
+  }
+
+
+  if (searchModal) {
+
+    searchModal.addEventListener("click", function (event) {
+
+      if (event.target === searchModal) {
+
+        closeSearch();
+
+      }
+
+    });
+
+  }
+
+
+  /* ---------------------------------------------------------
+     SEARCH FUNCTION
+     --------------------------------------------------------- */
+
+  function performSearch(term) {
+
+    if (!searchResults) return;
+
+    term = term.trim().toLowerCase();
+
+    if (!term) {
+
+      searchResults.innerHTML = `
+        <p class="search-empty">
+          Enter a search term to search NFMS-FIP.
+        </p>
+      `;
+
       return;
+
     }
 
 
-    /* -----------------------------------------
-       CLICK SEARCH BACKDROP
-       ----------------------------------------- */
+    const results = [];
 
-    if (
-      event.target.id ===
-      "searchModal"
-    ) {
+
+    Object.keys(MENU).forEach(function (key) {
+
+      const menu = MENU[key];
+
+      if (!menu.groups) return;
+
+
+      menu.groups.forEach(function (group) {
+
+        if (!group.items) return;
+
+
+        group.items.forEach(function (item) {
+
+          const label = item[0];
+          const pageId = item[1];
+
+          if (
+            label.toLowerCase().includes(term) ||
+            group.title.toLowerCase().includes(term) ||
+            menu.title.toLowerCase().includes(term)
+          ) {
+
+            results.push({
+              label: label,
+              pageId: pageId,
+              group: group.title,
+              menu: menu.title
+            });
+
+          }
+
+        });
+
+      });
+
+    });
+
+
+    if (!results.length) {
+
+      searchResults.innerHTML = `
+        <p class="search-empty">
+          No matching NFMS-FIP pages were found.
+        </p>
+      `;
+
+      return;
+
+    }
+
+
+    searchResults.innerHTML = results.map(function (result) {
+
+      return `
+        <button
+          type="button"
+          class="search-result"
+          data-page="${escapeHtml(result.pageId)}"
+        >
+
+          <strong>${escapeHtml(result.label)}</strong>
+
+          <small>
+            ${escapeHtml(result.menu)}
+            &nbsp;›&nbsp;
+            ${escapeHtml(result.group)}
+          </small>
+
+        </button>
+      `;
+
+    }).join("");
+
+  }
+
+
+  if (searchInput) {
+
+    searchInput.addEventListener("input", function () {
+
+      performSearch(searchInput.value);
+
+    });
+
+  }
+
+
+  document.addEventListener("click", function (event) {
+
+    const result =
+      event.target.closest(".search-result");
+
+    if (!result) return;
+
+    const pageId =
+      result.getAttribute("data-page");
+
+    if (pageId) {
+
+      window.location.hash = pageId;
 
       closeSearch();
 
-      return;
     }
 
-
-    /* -----------------------------------------
-       SIDEBAR OPEN
-       ----------------------------------------- */
-
-    const sidebarToggle =
-      event.target.closest(
-        "#sidebarToggle, .sidebar-toggle, [data-action='sidebar-toggle']"
-      );
+  });
 
 
-    if (sidebarToggle) {
+  /* ---------------------------------------------------------
+     ESC KEY
+     --------------------------------------------------------- */
 
-      event.preventDefault();
+  document.addEventListener("keydown", function (event) {
 
-
-      if (sidebar) {
-
-        sidebar.classList.toggle(
-          "open"
-        );
-
-      }
-
-      return;
-    }
-
-
-    /* -----------------------------------------
-       SIDEBAR CLOSE
-       ----------------------------------------- */
-
-    const sidebarClose =
-      event.target.closest(
-        "#sidebarClose, .sidebar-close, [data-action='sidebar-close']"
-      );
-
-
-    if (sidebarClose) {
-
-      event.preventDefault();
-
-
-      if (sidebar) {
-
-        sidebar.classList.remove(
-          "open"
-        );
-
-      }
-
-      return;
-    }
-
-
-    /* -----------------------------------------
-       CLICK OUTSIDE NAVIGATION
-       ----------------------------------------- */
-
-    if (
-      !event.target.closest(
-        ".main-nav"
-      )
-    ) {
+    if (event.key === "Escape") {
 
       closeAllDropdowns();
 
-    }
-
-  }
-);
-
-
-/* =========================================================
-   SEARCH INPUT
-   ========================================================= */
-
-document.addEventListener(
-  "input",
-  function(event) {
-
-    if (
-      event.target.id ===
-      "searchInput"
-    ) {
-
-      performSearch(
-        event.target.value
-      );
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   KEYBOARD CONTROLS
-   ========================================================= */
-
-document.addEventListener(
-  "keydown",
-  function(event) {
-
-
-    /* ESC */
-
-    if (
-      event.key === "Escape"
-    ) {
-
-      closeAllDropdowns();
-
-      closeAllSubmenus();
-
       closeSearch();
 
+    }
 
-      if (sidebar) {
+  });
 
-        sidebar.classList.remove(
-          "open"
-        );
+
+  /* ---------------------------------------------------------
+     MOBILE MENU
+     --------------------------------------------------------- */
+
+  if (mobileMenuButton && sidebar) {
+
+    mobileMenuButton.addEventListener("click", function () {
+
+      sidebar.classList.toggle("mobile-open");
+
+    });
+
+  }
+
+
+  /* ---------------------------------------------------------
+     TICKER PAUSE
+     --------------------------------------------------------- */
+
+  if (tickerPause) {
+
+    let tickerPaused = false;
+
+    tickerPause.addEventListener("click", function () {
+
+      tickerPaused = !tickerPaused;
+
+      const track =
+        document.querySelector(".ticker-track");
+
+      if (track) {
+
+        track.style.animationPlayState =
+          tickerPaused ? "paused" : "running";
 
       }
 
-    }
 
+      const icon =
+        tickerPause.querySelector("i");
 
-    /* "/" opens search */
+      if (icon) {
 
-    if (
-      event.key === "/" &&
-      ![
-        "INPUT",
-        "TEXTAREA"
-      ].includes(
-        document.activeElement.tagName
-      )
-    ) {
+        icon.className =
+          tickerPaused
+            ? "fa-solid fa-play"
+            : "fa-solid fa-pause";
 
-      event.preventDefault();
+      }
 
-      openSearch();
-
-    }
+    });
 
   }
-);
 
 
-/* =========================================================
-   ROUTER
-   ========================================================= */
+  /* ---------------------------------------------------------
+     ROUTING
+     --------------------------------------------------------- */
 
-function route() {
+  function route() {
 
-  const hash =
-    window.location.hash
-      .replace(/^#/, "")
-      .trim();
+    let pageId =
+      window.location.hash.replace("#", "");
 
+    if (!pageId) {
 
-  /*
-     IMPORTANT:
-     Routing only changes page content.
-     It does NOT remove the .open class from
-     the navigation dropdowns.
-  */
-
-  renderPage(
-    hash || "home"
-  );
-}
-
-
-/* =========================================================
-   APPLICATION INITIALISATION
-   ========================================================= */
-
-function initialiseApp() {
-
-  try {
-
-    /*
-       Build menus first.
-    */
-
-    buildTopMenus();
-
-    buildSidebar();
-
-
-    /*
-       Update footer year.
-    */
-
-    const year =
-      document.getElementById(
-        "year"
-      );
-
-
-    if (year) {
-
-      year.textContent =
-        new Date()
-          .getFullYear();
+      pageId = "home";
 
     }
 
+    renderPage(pageId);
 
-    /*
-       Load current page.
-    */
+  }
+
+
+  window.addEventListener("hashchange", function () {
 
     route();
 
+  });
 
-    console.log(
-      "NFMS-FIP application initialised successfully."
-    );
+
+  /* ---------------------------------------------------------
+     ESCAPE HTML
+     --------------------------------------------------------- */
+
+  function escapeHtml(value) {
+
+    if (value === undefined || value === null) {
+      return "";
+    }
+
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
 
   }
 
-  catch (error) {
 
-    console.error(
-      "NFMS-FIP initialisation error:",
-      error
-    );
+  /* ---------------------------------------------------------
+     INITIALISE
+     --------------------------------------------------------- */
 
-  }
+  buildTopMenus();
 
-}
+  buildSidebar();
 
-
-/* =========================================================
-   START APPLICATION
-   ========================================================= */
-
-window.addEventListener(
-  "hashchange",
-  route
-);
+  route();
 
 
-if (
-  document.readyState ===
-  "loading"
-) {
+  console.log("NFMS-FIP application initialized successfully.");
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    initialiseApp
-  );
-
-} else {
-
-  initialiseApp();
-
-}
+});
