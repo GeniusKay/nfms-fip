@@ -1,152 +1,358 @@
-const content = document.getElementById("content");
-const sidebar = document.getElementById("sidebar");
-const sidebarMenu = document.getElementById("sidebarMenu");
-
-function slug(text){ return text.toLowerCase().replace(/&/g,"and").replace(/[+\/]/g,"-").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
-
-function buildDropdown(menu){
-  return menu.groups.map((group,gi)=>`
-    <div class="menu-group ${gi===0?'expanded':''}">
-      <button class="menu-group-title" data-submenu>
-        <span>${group.title}</span><i class="fa-solid fa-chevron-down"></i>
-      </button>
-      <div class="submenu">
-        ${group.items.map(([label,id])=>`<a class="menu-link" href="#${id}" data-page="${id}">${label}</a>`).join("")}
-      </div>
-    </div>`).join("");
-}
-
-function buildSidebar(){
-  const home = `<div class="sidebar-group"><a class="sidebar-group-title" href="#home"><span class="left"><i class="fa-solid fa-house"></i> Home</span></a></div>`;
-  sidebarMenu.innerHTML = home + Object.entries(MENU).map(([key,menu])=>`
-    <div class="sidebar-group" data-sidebar-group="${key}">
-      <button class="sidebar-group-title">
-        <span class="left"><i class="fa-solid ${menu.icon}"></i>${menu.title}</span>
-        <i class="fa-solid fa-chevron-down"></i>
-      </button>
-      <div class="sidebar-submenu">
-        ${menu.groups.map(g=>`
-          <div class="sidebar-subgroup">
-            <div class="sidebar-subgroup-title">${g.title}</div>
-            ${g.items.map(([label,id])=>`<a href="#${id}" data-page="${id}">${label}</a>`).join("")}
-          </div>`).join("")}
-      </div>
-    </div>`).join("");
-}
-
-function buildTopMenus(){
-  Object.entries(MENU).forEach(([key,menu])=>{
-    const el=document.getElementById(key+"Menu");
-    if(el) el.innerHTML=buildDropdown(menu);
-  });
-}
-
-function buildTopMenus(){
-  Object.entries(MENU).forEach(([key,menu])=>{
-    const el=document.getElementById(key+"Menu");
-    if(el) el.innerHTML=buildDropdown(menu);
-  });
-}
-
 function homePage(){
-  // NEW HOME PAGE CODE GOES HERE
+  return `
+  <div class="breadcrumb">
+    <i class="fa-solid fa-house"></i>
+    <span>Home</span>
+  </div>
+
+  <div class="home-page">
+
+    <!-- INTRODUCTION -->
+    <section class="home-intro">
+      <div class="intro-content">
+        <span class="section-kicker">
+          KENYA NATIONAL FOREST MONITORING SYSTEM
+        </span>
+
+        <h2>Reliable Forest Information for a Sustainable Kenya</h2>
+
+        <p>
+          The National Forest Monitoring System (NFMS-FIP) provides an
+          integrated framework for collecting, managing, analysing,
+          monitoring and sharing forest information to support sustainable
+          forest management, restoration, climate action, reporting and
+          evidence-based decision-making.
+        </p>
+
+        <div class="intro-actions">
+          <a href="#forest-cover-mapping" class="primary-action">
+            <i class="fa-solid fa-satellite"></i>
+            Explore Forest Monitoring
+          </a>
+
+          <a href="#interactive-maps" class="secondary-action">
+            <i class="fa-solid fa-map"></i>
+            Explore Forest Data & Maps
+          </a>
+        </div>
+      </div>
+
+      <div class="intro-visual">
+        <div class="visual-circle">
+          <i class="fa-solid fa-tree"></i>
+        </div>
+
+        <div class="visual-label">
+          <strong>NFMS-FIP</strong>
+          <span>Integrated Forest Information</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- CORE COMPONENTS -->
+    <section class="home-section">
+
+      <div class="section-heading">
+        <span class="section-kicker">CORE COMPONENTS</span>
+
+        <h3>Integrated Forest Information</h3>
+
+        <p>
+          NFMS-FIP brings together complementary sources of forest
+          information within a coordinated national monitoring and
+          reporting framework.
+        </p>
+      </div>
+
+      <div class="pillar-grid">
+
+        <a href="#forest-cover-mapping" class="pillar-card">
+          <div class="pillar-icon">
+            <i class="fa-solid fa-satellite"></i>
+          </div>
+
+          <div>
+            <h4>Satellite Land Monitoring System</h4>
+
+            <p>
+              Satellite-based monitoring of forest cover, land cover,
+              forest change, deforestation, degradation, alerts and fire.
+            </p>
+
+            <span>
+              Explore SLMS
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+          </div>
+        </a>
+
+
+        <a href="#nfi-results" class="pillar-card">
+          <div class="pillar-icon">
+            <i class="fa-solid fa-tree"></i>
+          </div>
+
+          <div>
+            <h4>National Forest Inventory</h4>
+
+            <p>
+              Forest inventory information covering forest resources,
+              biomass, carbon stocks, field observations and inventory
+              results.
+            </p>
+
+            <span>
+              Explore NFI
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+          </div>
+        </a>
+
+
+        <a href="#mrv-framework" class="pillar-card">
+          <div class="pillar-icon">
+            <i class="fa-solid fa-cloud"></i>
+          </div>
+
+          <div>
+            <h4>MRV & Climate</h4>
+
+            <p>
+              Forest carbon monitoring, GHG inventory, FREL/FRL,
+              REDD+ and climate-related forest reporting.
+            </p>
+
+            <span>
+              Explore MRV
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+          </div>
+        </a>
+
+
+        <a href="#data-catalogue" class="pillar-card">
+          <div class="pillar-icon">
+            <i class="fa-solid fa-database"></i>
+          </div>
+
+          <div>
+            <h4>Forest Data & Knowledge</h4>
+
+            <p>
+              Access forest datasets, maps, metadata, data services,
+              knowledge resources and information products.
+            </p>
+
+            <span>
+              Explore Data
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+
+    <!-- FOREST MONITORING WORKFLOW -->
+    <section class="workflow-section">
+
+      <div class="section-heading">
+        <span class="section-kicker">FOREST MONITORING WORKFLOW</span>
+
+        <h3>From Observation to Decision Support</h3>
+
+        <p>
+          NFMS-FIP connects Earth observation, field information and
+          geospatial technologies through an integrated monitoring workflow.
+        </p>
+      </div>
+
+      <div class="workflow">
+
+        <div class="workflow-step">
+          <div class="workflow-number">01</div>
+          <i class="fa-solid fa-satellite"></i>
+          <strong>Earth Observation</strong>
+          <span>Satellite imagery</span>
+        </div>
+
+        <div class="workflow-arrow">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+
+        <div class="workflow-step">
+          <div class="workflow-number">02</div>
+          <i class="fa-solid fa-microchip"></i>
+          <strong>Analysis</strong>
+          <span>GIS, AI & automated change detection</span>
+        </div>
+
+        <div class="workflow-arrow">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+
+        <div class="workflow-step">
+          <div class="workflow-number">03</div>
+          <i class="fa-solid fa-drone"></i>
+          <strong>UAV Verification</strong>
+          <span>Detailed mapping & validation</span>
+        </div>
+
+        <div class="workflow-arrow">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+
+        <div class="workflow-step">
+          <div class="workflow-number">04</div>
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <strong>Field Survey</strong>
+          <span>Ground verification</span>
+        </div>
+
+        <div class="workflow-arrow">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+
+        <div class="workflow-step">
+          <div class="workflow-number">05</div>
+          <i class="fa-solid fa-database"></i>
+          <strong>NFMS-FIP</strong>
+          <span>Maps, dashboards & reporting</span>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- QUICK ACCESS -->
+    <section class="home-section">
+
+      <div class="section-heading">
+        <span class="section-kicker">QUICK ACCESS</span>
+        <h3>Explore NFMS-FIP</h3>
+      </div>
+
+      <div class="quick-grid">
+
+        <a href="#interactive-maps" class="quick-card">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <div>
+            <strong>Interactive Maps</strong>
+            <span>Explore forest information spatially</span>
+          </div>
+        </a>
+
+        <a href="#forest-dashboards" class="quick-card">
+          <i class="fa-solid fa-chart-line"></i>
+          <div>
+            <strong>Forest Dashboards</strong>
+            <span>Explore monitoring indicators and trends</span>
+          </div>
+        </a>
+
+        <a href="#forest-alerts" class="quick-card">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>
+            <strong>Forest Alerts</strong>
+            <span>Monitor detected forest disturbances</span>
+          </div>
+        </a>
+
+        <a href="#fire-monitoring" class="quick-card">
+          <i class="fa-solid fa-fire"></i>
+          <div>
+            <strong>Fire Monitoring</strong>
+            <span>Access forest fire information</span>
+          </div>
+        </a>
+
+        <a href="#data-access-download" class="quick-card">
+          <i class="fa-solid fa-download"></i>
+          <div>
+            <strong>Data Access</strong>
+            <span>Find datasets and information products</span>
+          </div>
+        </a>
+
+        <a href="#national-forest-reporting" class="quick-card">
+          <i class="fa-solid fa-file-lines"></i>
+          <div>
+            <strong>Reports & Publications</strong>
+            <span>Access forest monitoring knowledge</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+
+    <!-- MONITORING TECHNOLOGIES -->
+    <section class="technology-section">
+
+      <div class="section-heading">
+        <span class="section-kicker">MONITORING TECHNOLOGIES</span>
+        <h3>Technology Supporting Forest Monitoring</h3>
+      </div>
+
+      <div class="technology-grid">
+
+        <div class="technology-item">
+          <i class="fa-solid fa-earth-africa"></i>
+          <strong>Remote Sensing</strong>
+          <span>Earth observation & satellite data</span>
+        </div>
+
+        <div class="technology-item">
+          <i class="fa-solid fa-map"></i>
+          <strong>GIS</strong>
+          <span>Geospatial analysis & mapping</span>
+        </div>
+
+        <div class="technology-item">
+          <i class="fa-solid fa-drone"></i>
+          <strong>UAV / Drone</strong>
+          <span>High-resolution verification</span>
+        </div>
+
+        <div class="technology-item">
+          <i class="fa-solid fa-wave-square"></i>
+          <strong>LiDAR</strong>
+          <span>Three-dimensional forest information</span>
+        </div>
+
+        <div class="technology-item">
+          <i class="fa-solid fa-brain"></i>
+          <strong>AI & Machine Learning</strong>
+          <span>Automated analysis & detection</span>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- CALL TO ACTION -->
+    <section class="nfms-callout">
+
+      <div>
+        <span class="section-kicker">NFMS-FIP</span>
+
+        <h3>One Platform for Kenya's Forest Information</h3>
+
+        <p>
+          Discover forest monitoring information, geospatial datasets,
+          maps, dashboards, reports and knowledge resources through the
+          National Forest Monitoring System.
+        </p>
+      </div>
+
+      <a href="#what-is-nfms" class="cta-button">
+        Learn About NFMS
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+
+    </section>
+
+  </div>`;
 }
-
-function renderPage(id){
-  ...
-}
-  if(id==="home" || !id) { content.innerHTML=homePage(); document.title="NFMS-FIP | Home"; return; }
-  const data=PAGE_COPY[id] || [id.replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase()),"This NFMS-FIP page is ready for detailed content, maps, datasets, dashboards and supporting documentation."];
-  const related=[];
-  Object.values(MENU).forEach(m=>m.groups.forEach(g=>g.items.forEach(([label,pid])=>{if(pid!==id && related.length<6) related.push([label,pid])})));
-  content.innerHTML=`
-    <div class="breadcrumb"><i class="fa-solid fa-house"></i><a href="#home">Home</a><span>›</span><span>${data[0]}</span></div>
-    <div class="page-body">
-      <h2>${data[0]}</h2>
-      <p class="lead">${data[1]}</p>
-      <div class="callout"><strong><i class="fa-solid fa-circle-info section-icon"></i> NFMS-FIP Information</strong><br>This section can be populated with approved Kenyan datasets, maps, methods, reports, dashboards, standards and supporting resources.</div>
-      <h3>Related NFMS resources</h3>
-      <div class="page-list">${related.map(([label,pid])=>`<a href="#${pid}"><i class="fa-solid ${ICONS[label]||"fa-arrow-right"} section-icon"></i>${label}</a>`).join("")}</div>
-    </div>`;
-  document.title=`${data[0]} | NFMS-FIP`;
-}
-
-function setActive(id){
-  document.querySelectorAll(".nav-item").forEach(x=>x.classList.remove("active"));
-  const top = id==="home" ? document.querySelector('.nav-item[data-page="home"]') : null;
-  if(top) top.classList.add("active");
-  document.querySelectorAll("[data-sidebar-group]").forEach(g=>g.classList.remove("expanded"));
-  const group = findMenuGroup(id);
-  if(group){ const el=document.querySelector(`[data-sidebar-group="${group}"]`); if(el) el.classList.add("expanded"); }
-}
-
-function findMenuGroup(id){
-  for(const [key,m] of Object.entries(MENU)) for(const g of m.groups) for(const item of g.items) if(item[1]===id) return key;
-  return null;
-}
-
-function route(){
-  const id=location.hash.replace("#","")||"home";
-  renderPage(id);
-  setActive(id);
-  sidebar.classList.remove("mobile-open");
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-document.addEventListener("click",e=>{
-  const toggle=e.target.closest("[data-submenu]");
-  if(toggle) toggle.parentElement.classList.toggle("expanded");
-
-  const navToggle=e.target.closest(".nav-toggle");
-  if(navToggle){
-    const dropdown=navToggle.closest(".nav-dropdown");
-    document.querySelectorAll(".nav-dropdown").forEach(x=>{if(x!==dropdown)x.classList.remove("open")});
-    dropdown.classList.toggle("open");
-  }
-
-  const sidebarToggle=e.target.closest(".sidebar-group-title");
-  if(sidebarToggle && sidebarToggle.closest("[data-sidebar-group]")){
-    sidebarToggle.closest("[data-sidebar-group]").classList.toggle("expanded");
-  }
-});
-
-document.addEventListener("click",e=>{
-  if(!e.target.closest(".nav-dropdown")){
-    document.querySelectorAll(".nav-dropdown").forEach(x=>x.classList.remove("open"));
-  }
-});
-
-document.getElementById("mobileMenuButton").addEventListener("click",()=>sidebar.classList.toggle("mobile-open"));
-
-const ticker=document.querySelector(".ticker-track");
-let tickerPaused=false;
-document.getElementById("tickerPause").addEventListener("click",e=>{
-  tickerPaused=!tickerPaused;
-  ticker.style.animationPlayState=tickerPaused?"paused":"running";
-  e.currentTarget.innerHTML=tickerPaused?'<i class="fa-solid fa-play"></i>':'<i class="fa-solid fa-pause"></i>';
-});
-
-const modal=document.getElementById("searchModal");
-const input=document.getElementById("searchInput");
-const results=document.getElementById("searchResults");
-document.getElementById("searchButton").addEventListener("click",()=>{
-  modal.classList.add("open"); modal.setAttribute("aria-hidden","false"); input.focus();
-});
-document.getElementById("closeSearch").addEventListener("click",()=>modal.classList.remove("open"));
-modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("open")});
-
-const allPages=[];
-Object.entries(MENU).forEach(([key,m])=>m.groups.forEach(g=>g.items.forEach(([label,id])=>allPages.push([label,id,m.title]))));
-input.addEventListener("input",()=>{
-  const q=input.value.trim().toLowerCase();
-  if(!q){results.innerHTML="<p>Type a topic to search the NFMS-FIP navigation.</p>";return}
-  const hits=allPages.filter(x=>(x[0]+" "+x[2]).toLowerCase().includes(q)).slice(0,12);
-  results.innerHTML=hits.length?hits.map(x=>`<div class="search-result"><a href="#${x[1]}"><strong>${x[0]}</strong><small>${x[2]}</small></a></div>`).join(""):"<p>No matching NFMS-FIP page found.</p>";
-});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")modal.classList.remove("open")});
-
-document.getElementById("year").textContent=new Date().getFullYear();
-buildTopMenus();
-buildSidebar();
-route();
-window.addEventListener("hashchange",route);
