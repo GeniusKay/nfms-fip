@@ -1,31 +1,106 @@
-/* =========================================================
-   TOP NAVIGATION DROPDOWN MENUS
-   Hidden until clicked
-   ========================================================= */
-
-.nav-dropdown {
-  position: relative;
+.main-nav{
+  display:flex;
+  background:var(--green-800);
+  min-height:89px;
+  position:relative;
+  z-index:20
 }
 
-.dropdown-panel {
-  display: none !important;
-  position: absolute;
-  top: 100%;
-  left: 0;
-
-  min-width: 330px;
-  max-width: 470px;
-
-  background: #fff;
-  border: 1px solid var(--line);
-  box-shadow: 0 12px 28px rgba(0,0,0,.16);
-  border-radius: 0 0 7px 7px;
-
-  padding: 8px;
-  z-index: 1000;
+.nav-dropdown{
+  position:relative;
+  flex:1;
+  display:flex
 }
 
-/* Show ONLY when the top menu is clicked */
-.nav-dropdown.open > .dropdown-panel {
-  display: block !important;
+.nav-item{
+  flex:1;
+  border:0;
+  background:transparent;
+  color:#fff;
+  min-width:100px;
+  padding:11px 7px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:6px;
+  cursor:pointer;
+  border-right:1px solid rgba(255,255,255,.12);
+  font-size:13px;
+  font-weight:600
+}
+
+.nav-item i:first-child{
+  font-size:22px
+}
+
+.nav-item.active,
+.nav-item:hover,
+.nav-dropdown.open>.nav-item{
+  background:var(--green-500)
+}
+
+.chevron{
+  font-size:10px!important;
+  position:absolute;
+  right:7px;
+  top:15px
+}
+
+.dropdown-panel{
+  display:none;
+  position:absolute;
+  top:100%;
+  left:0;
+  min-width:330px;
+  max-width:470px;
+  background:#fff;
+  border:1px solid var(--line);
+  box-shadow:0 12px 28px rgba(0,0,0,.16);
+  border-radius:0 0 7px 7px;
+  padding:8px;
+  z-index:50
+}
+
+.nav-dropdown.open .dropdown-panel{
+  display:block
+}
+
+.menu-group{
+  position:relative
+}
+
+.menu-group-title,
+.menu-link{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  padding:11px 13px;
+  border-radius:5px;
+  color:var(--green-900);
+  font-size:14px;
+  text-align:left;
+  background:#fff;
+  border:0;
+  cursor:pointer
+}
+
+.menu-group-title:hover,
+.menu-link:hover{
+  background:var(--green-100)
+}
+
+.menu-group-title i{
+  font-size:11px
+}
+
+.submenu{
+  display:none;
+  padding:2px 0 5px 14px
+}
+
+.menu-group.expanded>.submenu{
+  display:block
 }
